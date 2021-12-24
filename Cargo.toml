@@ -1,0 +1,12 @@
+[package]
+name = "nd-slice"
+version = "0.1.0"
+edition = "2021"
+authors = ["Archit Bhonsle <abhonsle2000@gmail.com>"]
+description = "Wrapping `std::slice`s to represent n-dimensional arrays"
+repository = "https://github.com/ArchitBhonsle/nd-slice"
+license = "Apache-2.0"
+keywords = ["vector", "matrix", "nd-array", "multidimensional", "data-structure"]
+categories = ["data-structures"]
+
+[dependencies]
