@@ -55,22 +55,22 @@ mod tests {
 
     #[test]
     fn row_major_test_2d() {
-        assert_eq!(row_major(&[2, 3], &[0, 0]), 0);
-        assert_eq!(row_major(&[2, 3], &[0, 1]), 1);
-        assert_eq!(row_major(&[2, 3], &[0, 2]), 2);
-        assert_eq!(row_major(&[2, 3], &[1, 0]), 3);
-        assert_eq!(row_major(&[2, 3], &[1, 1]), 4);
-        assert_eq!(row_major(&[2, 3], &[1, 2]), 5);
+        assert_eq!(row_major_address(&[2, 3], &[0, 0]), 0);
+        assert_eq!(row_major_address(&[2, 3], &[0, 1]), 1);
+        assert_eq!(row_major_address(&[2, 3], &[0, 2]), 2);
+        assert_eq!(row_major_address(&[2, 3], &[1, 0]), 3);
+        assert_eq!(row_major_address(&[2, 3], &[1, 1]), 4);
+        assert_eq!(row_major_address(&[2, 3], &[1, 2]), 5);
     }
 
     #[test]
     fn col_major_test_2d() {
-        assert_eq!(col_major(&[2, 3], &[0, 0]), 0);
-        assert_eq!(col_major(&[2, 3], &[1, 0]), 1);
-        assert_eq!(col_major(&[2, 3], &[0, 1]), 2);
-        assert_eq!(col_major(&[2, 3], &[1, 1]), 3);
-        assert_eq!(col_major(&[2, 3], &[0, 2]), 4);
-        assert_eq!(col_major(&[2, 3], &[1, 2]), 5);
+        assert_eq!(col_major_address(&[2, 3], &[0, 0]), 0);
+        assert_eq!(col_major_address(&[2, 3], &[1, 0]), 1);
+        assert_eq!(col_major_address(&[2, 3], &[0, 1]), 2);
+        assert_eq!(col_major_address(&[2, 3], &[1, 1]), 3);
+        assert_eq!(col_major_address(&[2, 3], &[0, 2]), 4);
+        assert_eq!(col_major_address(&[2, 3], &[1, 2]), 5);
     }
 }
 
