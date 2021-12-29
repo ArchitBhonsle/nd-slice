@@ -1,8 +1,8 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
+#![warn(missing_debug_implementations, missing_docs)]
+
+//! `nd-slice` wraps `std::slice` to represent n-dimensional arrays
+
+pub mod errors;
+pub mod nd_slice;
+mod addressing;
+
