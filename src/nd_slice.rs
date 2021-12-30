@@ -13,37 +13,41 @@ pub struct NdSlice<'s, T, const N: usize> {
     order: Order,
 }
 
+type ConstructionResult<'s, T, const N: usize> = Result<NdSlice<'s, T, N>, ShapeError<'s, T, N>>;
+
 impl<'s, T, const N: usize> NdSlice<'s, T, N> {
-    /// Creates a new `NdSlice` with row-major ordering from a given slice and the expected shape
-    pub fn new(slice: &'s [T], shape: [usize; N]) -> Result<Self, ShapeError<'s, T, N>> {
+    /// Creates a new `NdSlice` with the specified ordering from a given slice and the expected shape
+    pub fn new(slice: &'s [T], shape: [usize; N], order: Order) -> ConstructionResult<'s, T, N> {
         if slice.len() == shape.iter().fold(1, |acc, &x| acc * x) {
-            Ok(Self { slice, shape, order: Order::RowMajor })
+            Ok(Self { slice, shape, order })
         } else {
             Err(ShapeError::new(slice, shape))
         }
+    }
+
+    /// Creates a new `NdSlice` with the specified ordering from a raw pointer, it's length and the expected shape
+    pub unsafe fn from_ptr(ptr: *const T, len: usize, shape: [usize; N], order: Order) -> ConstructionResult<'s, T, N> {
+        NdSlice::new(slice::from_raw_parts(ptr, len), shape, order)
+    }
+
+    /// Creates a new `NdSlice` with row-major ordering from a given slice and the expected shape
+    pub fn new_row_ordered(slice: &'s [T], shape: [usize; N]) -> ConstructionResult<'s, T, N> {
+        NdSlice::new(slice, shape, Order::RowMajor)
     }
 
     /// Creates a new `NdSlice` with row-major ordering from a raw pointer, it's length and the expected shape
-    pub unsafe fn new_from_ptr(ptr: *const T, len: usize, shape: [usize; N]) -> Result<Self, ShapeError<'s, T, N>> {
-        let slice = slice::from_raw_parts(ptr, len);
-
-        NdSlice::new(slice, shape)
+    pub unsafe fn row_ordered_from_ptr(ptr: *const T, len: usize, shape: [usize; N]) -> ConstructionResult<'s, T, N> {
+        NdSlice::from_ptr(ptr, len, shape, Order::RowMajor)
     }
 
     /// Creates a new `NdSlice` with column-major ordering from a given slice and the expected shape
-    pub fn newc(slice: &'s [T], shape: [usize; N]) -> Result<Self, ShapeError<'s, T, N>> {
-        if slice.len() == shape.iter().fold(1, |acc, &x| acc * x) {
-            Ok(Self { slice, shape, order: Order::ColumnMajor })
-        } else {
-            Err(ShapeError::new(slice, shape))
-        }
+    pub fn col_ordered(slice: &'s [T], shape: [usize; N]) -> ConstructionResult<'s, T, N> {
+        NdSlice::new(slice, shape, Order::ColumnMajor)
     }
 
     /// Creates a new `NdSlice` with column-major ordering from a raw pointer, it's length and the expected shape.
-    pub unsafe fn newc_from_ptr(ptr: *const T, len: usize, shape: [usize; N]) -> Result<Self, ShapeError<'s, T, N>> {
-        let slice = slice::from_raw_parts(ptr, len);
-
-        NdSlice::newc(slice, shape)
+    pub unsafe fn col_ordered_from_ptr(ptr: *const T, len: usize, shape: [usize; N]) -> ConstructionResult<'s, T, N> {
+        NdSlice::from_ptr(ptr, len, shape, Order::ColumnMajor)
     }
 }
 
@@ -65,7 +69,7 @@ mod tests {
     const ARR: [usize; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
 
     fn new_check<const N: usize>(shape: [usize; N]) {
-        NdSlice::new(&ARR, shape).unwrap();
+        NdSlice::new_row_ordered(&ARR, shape).unwrap();
     }
 
     #[test]
@@ -87,16 +91,16 @@ mod tests {
     fn new_from_ptr() {
         let ptr = ARR.as_ptr();
         unsafe {
-            NdSlice::new_from_ptr(ptr, 8, [8]).unwrap();
-            NdSlice::new_from_ptr(ptr, 8, [4, 2]).unwrap();
-            NdSlice::new_from_ptr(ptr, 8, [2, 2, 2]).unwrap();
+            NdSlice::row_ordered_from_ptr(ptr, 8, [8]).unwrap();
+            NdSlice::row_ordered_from_ptr(ptr, 8, [4, 2]).unwrap();
+            NdSlice::row_ordered_from_ptr(ptr, 8, [2, 2, 2]).unwrap();
         }
     }
 
     #[test]
     fn index_test() {
-        let rm = NdSlice::new(&[1, 2, 3, 4, 5, 6], [2, 3]).unwrap();
-        let cm = NdSlice::newc(&[1, 4, 2, 5, 3, 6], [2, 3]).unwrap();
+        let rm = NdSlice::new_row_ordered(&[1, 2, 3, 4, 5, 6], [2, 3]).unwrap();
+        let cm = NdSlice::col_ordered(&[1, 4, 2, 5, 3, 6], [2, 3]).unwrap();
 
         assert!(rm[[0, 0]] == 1 && rm[[0, 0]] == cm[[0, 0]]);
         assert!(rm[[0, 1]] == 2 && rm[[0, 1]] == cm[[0, 1]]);
