@@ -1,14 +1,17 @@
-//! Different ways to index a n-dimensional array
+//! Indexing into n-dimensional arrays with different underlying storage mechanisms.
 //!
-//! https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general
+//! <https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general>
 
 #[derive(Debug, Clone)]
-/// Enum to indicate the underlying memory order of the `NdSlice` or `NdSliceMut`
+/// Enum to indicate the underlying memory order of the `NdSlice` or `NdSliceMut`.
 ///
-/// In row-major order, the last dimension is contiguous; in column-major order, the first
-/// dimension is contiguous. Read more: https://en.wikipedia.org/wiki/Row-_and_column-major_order
+/// In row-major order, the last dimension is contiguous.
+/// In column-major order, the first dimension is contiguous. 
+/// Read more: <https://en.wikipedia.org/wiki/Row-_and_column-major_order>
 pub enum Order {
+    /// In row-major order, the last dimension is contiguous. Read more: <https://en.wikipedia.org/wiki/Row-_and_column-major_order>
     RowMajor,
+    /// In column-major order, the first dimension is contiguous. Read more: <https://en.wikipedia.org/wiki/Row-_and_column-major_order>
     ColumnMajor,
 }
 

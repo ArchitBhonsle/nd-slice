@@ -1,4 +1,4 @@
-//! `NdSlice` wraps `&[T]` to represent an n-dimensional array
+//! `NdSlice` wraps `&[T]` to represent an immutable n-dimensional array
 
 use std::ops::Index;
 use std::slice;
@@ -6,7 +6,29 @@ use crate::addressing::{Order, address};
 use crate::errors::ShapeError;
 
 #[derive(Debug, Clone)]
-/// `NdSlice` wraps `&[T]` to represent an n-dimensional array
+/// `NdSlice` wraps `&[T]` to represent an immutable n-dimensional array
+///
+/// ```
+/// # use nd_slice::{NdSlice, Order};
+/// let arr = [1, 2, 3, 4, 5, 6];
+/// let n = NdSlice::new(&arr, [2, 3], Order::RowMajor).unwrap();
+/// assert_eq!(n[[0, 0]], 1);
+/// assert_eq!(n[[1, 2]], 6);
+///
+/// let arr = [1, 2, 3, 4, 5, 6, 7, 8];
+/// let n = NdSlice::new(&arr, [2, 2, 2], Order::RowMajor).unwrap();
+/// assert_eq!(n[[0, 0, 0]], 1);
+/// assert_eq!(n[[1, 1, 1]], 8);
+/// ```
+///
+/// If the slice doesn't have enough elements to represent an array of that shape, it will
+/// return an `Err(ShapeError)`.
+///
+/// ```should_panic
+/// # use nd_slice::{NdSlice, Order};
+/// let n = NdSlice::new(&[1, 2, 3, 4, 5, 6], [2, 2], Order::RowMajor).unwrap(); // more elements
+/// let n = NdSlice::new(&[1, 2, 3, 4, 5, 6], [2, 4], Order::RowMajor).unwrap(); // less elements
+/// ```
 pub struct NdSlice<'s, T, const N: usize> {
     slice: &'s [T],
     shape: [usize; N],
@@ -51,14 +73,11 @@ impl<'s, T, const N: usize> NdSlice<'s, T, N> {
     }
 }
 
-impl<'s, T, const N: usize> Index<[usize; N]> for NdSlice<'s, T, N> {
+impl<T, const N: usize> Index<[usize; N]> for NdSlice<'_, T, N> {
     type Output = T;
 
-    fn index(&self, index: [usize; N]) -> &'s Self::Output {
-        let shape = &self.shape;
-        let order = &self.order;
-        
-        &self.slice[address(order, shape, &index)]
+    fn index(&self, index: [usize; N]) -> &Self::Output {
+        &self.slice[address(&self.order, &self.shape, &index)]
     }
 }
 
